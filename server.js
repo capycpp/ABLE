@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const { URL } = require('url');
-const cors = require('cors'); // CORS modulu əlavə olundu
 
 const ROOT = __dirname;
 const PUBLIC = path.join(ROOT, 'public');
@@ -12,9 +11,12 @@ const DB_FILE = path.join(DATA_DIR, 'db.json');
 
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-// Əgər express istifadə edirsinizsə:
-// const app = express();
-// app.use(cors());
+// CORS başlıqları üçün köməkçi funksiya
+function setCorsHeaders(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
 
 const seed = {
   users: [],
