@@ -1,1 +1,60 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ABLE — Account</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head><body><script>(async()=>{const u=await requireUser();if(!u)return;shell('','Account',`<section class="pagehero"><div class="wrap"><div class="eyebrow">ABLE Account</div><h1>Welcome, ${u.name.replace(/</g,'&lt;')}.</h1><p class="lead">Your account is active. This is the base layer for saved problems, submissions and contributor features.</p></div></section><section class="section"><div class="wrap"><div class="bigcard"><div class="tag">PROFILE</div><h2>${u.email}</h2><p>Role: ${u.role}</p><p>Member since: ${new Date(u.createdAt).toLocaleDateString()}</p><button class="btn" onclick="logout()">Log out</button>${u.role==='admin'?'<a class="btn primary" href="/admin.html">Admin Panel</a>':''}</div></div></section>`);})();</script></body></html>
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ABLE — Account</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/app.js"></script>
+</head>
+
+<body>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+
+  const u = await requireUser();
+
+  if (!u) return;
+
+  shell(
+    '',
+    'Account',
+    `
+      <section class="pagehero">
+        <div class="wrap">
+          <div class="eyebrow">ABLE Account</div>
+          <h1>Welcome, ${u.name.replace(/</g, '&lt;')}.</h1>
+          <p class="lead">
+            Your account is active. This is the base layer for saved problems,
+            submissions and contributor features.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <div class="bigcard">
+            <div class="tag">PROFILE</div>
+            <h2>${u.email}</h2>
+            <p>Role: ${u.role}</p>
+            <p>Member since: ${new Date(u.createdAt).toLocaleDateString()}</p>
+
+            <button class="btn" onclick="logout()">Log out</button>
+
+            ${
+              u.role === 'admin'
+                ? '<a class="btn primary" href="/admin.html">Admin Panel</a>'
+                : ''
+            }
+          </div>
+        </div>
+      </section>
+    `
+  );
+
+});
+</script>
+
+</body>
+</html>
