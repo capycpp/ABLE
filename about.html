@@ -7,9 +7,81 @@
   <link rel="stylesheet" href="/style.css">
   <script defer src="/app.js"></script>
 </head>
+
 <body>
+
 <script>
-shell('About','About Us',`<section class="pagehero"><div class="wrap"><div class="eyebrow">05 — About Us</div><h1>Less noise.<br>More mathematics.</h1><p class="lead">ABLE is being built as a serious olympiad mathematics platform: a place where high-quality problems, elegant solutions and reusable techniques are easy to discover and revisit.</p></div></section><section class="section"><div class="wrap"><div class="about-grid"><article class="bigcard"><div class="tag">WHY ABLE</div><h2>For people who actually want to solve.</h2><p>The goal is not to add another gamified dashboard. ABLE is intentionally calmer: strong problem archives, useful handouts, contest collections, clean solutions and a library you can return to.</p></article><article class="bigcard"><div class="tag">THE LIBRARY</div><h2>Built to keep growing.</h2><p>Problems, contests, articles, PDFs and LaTeX are separated into their own pages so the platform can become large without making every click a long scroll.</p></article><article class="bigcard"><div class="tag">TECHNIQUE</div><h2>Ideas should travel.</h2><p>Some methods deserve to be remembered across many problems. Lambda substitution is one example: ABLE can turn these recurring ideas into focused handouts rather than burying them inside solutions.</p></article><article class="bigcard"><div class="tag">COMMUNITY</div><h2>Join Us.</h2><p>Create an account to keep your place in the platform. Later, the same account layer can power saved problems, submissions, contributor access and more.</p><a class="btn primary" href="/signup.html">Create an account</a></article></div></div></section>`);
+document.addEventListener('DOMContentLoaded', () => {
+
+  shell(
+    'About',
+    'About Us',
+    `
+      <section class="pagehero">
+        <div class="wrap">
+          <div class="eyebrow">05 — About Us</div>
+          <h1>Less noise.<br>More mathematics.</h1>
+          <p class="lead">
+            ABLE is being built as a serious olympiad mathematics platform:
+            a place where high-quality problems, elegant solutions and reusable
+            techniques are easy to discover and revisit.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <div class="about-grid">
+
+            <article class="bigcard">
+              <div class="tag">WHY ABLE</div>
+              <h2>For people who actually want to solve.</h2>
+              <p>
+                The goal is not to add another gamified dashboard. ABLE is
+                intentionally calmer: strong problem archives, useful handouts,
+                contest collections, clean solutions and a library you can return to.
+              </p>
+            </article>
+
+            <article class="bigcard">
+              <div class="tag">THE LIBRARY</div>
+              <h2>Built to keep growing.</h2>
+              <p>
+                Problems, contests, articles, PDFs and LaTeX are separated into
+                their own pages so the platform can become large without making
+                every click a long scroll.
+              </p>
+            </article>
+
+            <article class="bigcard">
+              <div class="tag">TECHNIQUE</div>
+              <h2>Ideas should travel.</h2>
+              <p>
+                Some methods deserve to be remembered across many problems.
+                Lambda substitution is one example: ABLE can turn these recurring
+                ideas into focused handouts rather than burying them inside solutions.
+              </p>
+            </article>
+
+            <article class="bigcard">
+              <div class="tag">COMMUNITY</div>
+              <h2>Join Us.</h2>
+              <p>
+                Create an account to keep your place in the platform. Later,
+                the same account layer can power saved problems, submissions,
+                contributor access and more.
+              </p>
+              <a class="btn primary" href="/signup.html">Create an account</a>
+            </article>
+
+          </div>
+        </div>
+      </section>
+    `
+  );
+
+});
 </script>
+
 </body>
 </html>
