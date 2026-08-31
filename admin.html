@@ -1,11 +1,85 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ABLE — Admin</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script></head><body><div id="root"></div><script>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ABLE — Admin</title>
+<link rel="stylesheet" href="/style.css">
+<script defer src="/app.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script>
 let state={type:'problems',editing:null};
-(async()=>{const u=await requireAdmin();if(!u)return;document.getElementById('root').innerHTML=`<header class="top"><div class="wrap nav"><a class="brand" href="/">ABLE</a><div class="actions"><a class="btn" href="/">View site</a><button class="btn" onclick="logout()">Log out</button></div></div></header><main class="admin"><div class="wrap"><div class="admin-grid"><aside class="admin-side"><button class="active" data-type="problems">Problems</button><button data-type="articles">Articles</button><button data-type="contests">Contests</button><button data-type="users">Users</button></aside><section class="admin-main" id="main"></section></div></div></main>`;document.querySelectorAll('.admin-side button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.admin-side button').forEach(x=>x.classList.remove('active'));b.classList.add('active');state.type=b.dataset.type;state.editing=null;render()});render()})();
-async function render(){const m=document.getElementById('main');if(!m)return;if(state.type==='users'){const d=await api('/api/admin/users');m.innerHTML=`<div class="admin-head"><div><div class="eyebrow">Admin</div><h2>Users</h2></div></div><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th></tr></thead><tbody>${d.users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${u.role}</td><td>${new Date(u.createdAt).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;return}const d=await api('/api/content');const items=d[state.type];m.innerHTML=`<div class="admin-head"><div><div class="eyebrow">Content manager</div><h2>${state.type[0].toUpperCase()+state.type.slice(1)}</h2></div><button class="btn primary" onclick="newItem()">+ New</button></div><div class="rows">${items.map(x=>`<div class="row"><div><h3>${esc(x.title)}</h3><p>${esc(x.excerpt||x.description||x.topic||x.category||'')}</p></div><div>${esc(x.status||'published')}</div><div class="right"><button class="btn" onclick="editItem('${x.id}')">Edit</button> <button class="btn" onclick="removeItem('${x.id}')">Delete</button></div></div>`).join('')}</div>${state.editing?formHtml(state.editing):''}`}
+(async()=>{
+  let user = null;
+  try {
+    const res = await api('/api/me');
+    user = res.user;
+  } catch(e) {}
+
+  if(!user || user.role !== 'admin'){
+    document.getElementById('root').innerHTML=`<div style="padding:50px; text-align:center; color:#fff; font-family:sans-serif;"><h2>Access Denied</h2><p>Please log in with the admin account first.</p><a href="/" style="color:#60a5fa; text-decoration:underline;">Go to Home / Login</a></div>`;
+    return;
+  }
+
+  document.getElementById('root').innerHTML=`<header class="top"><div class="wrap nav"><a class="brand" href="/">ABLE</a><div class="actions"><a class="btn" href="/">View site</a><button class="btn" onclick="logout()">Log out</button></div></div></header><main class="admin"><div class="wrap"><div class="admin-grid"><aside class="admin-side"><button class="active" data-type="problems">Problems</button><button data-type="articles">Articles</button><button data-type="contests">Contests</button><button data-type="users">Users</button></aside><section class="admin-main" id="main"></section></div></div></main>`;
+  
+  document.querySelectorAll('.admin-side button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('.admin-side button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    state.type=b.dataset.type;
+    state.editing=null;
+    render();
+  });
+  render();
+})();
+
+async function render(){
+  const m=document.getElementById('main');
+  if(!m)return;
+  if(state.type==='users'){
+    const d=await api('/api/admin/users');
+    m.innerHTML=`<div class="admin-head"><div><div class="eyebrow">Admin</div><h2>Users</h2></div></div><table class="table"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Created</th></tr></thead><tbody>${d.users.map(u=>`<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${u.role}</td><td>${new Date(u.createdAt).toLocaleDateString()}</td></tr>`).join('')}</tbody></table>`;
+    return;
+  }
+  const d=await api('/api/content');
+  const items=d[state.type];
+  m.innerHTML=`<div class="admin-head"><div><div class="eyebrow">Content manager</div><h2>${state.type[0].toUpperCase()+state.type.slice(1)}</h2></div><button class="btn primary" onclick="newItem()">+ New</button></div><div class="rows">${items.map(x=>`<div class="row"><div><h3>${esc(x.title)}</h3><p>${esc(x.excerpt||x.description||x.topic||x.category||'')}</p></div><div>${esc(x.status||'published')}</div><div class="right"><button class="btn" onclick="editItem('${x.id}')">Edit</button> <button class="btn" onclick="removeItem('${x.id}')">Delete</button></div></div>`).join('')}</div>${state.editing?formHtml(state.editing):''}`;
+}
+
 function esc(x=''){return String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function newItem(){state.editing={id:null,title:'',topic:'',difficulty:'',source:'',category:'',excerpt:'',body:'',year:'',type:'',description:'',status:'published'};render()}
 async function editItem(id){const d=await api('/api/content');state.editing=d[state.type].find(x=>x.id===id);render()}
-function formHtml(x){let fields='';if(state.type==='problems')fields=`<div class="field"><label>Title</label><input class="input" id="f-title" value="${esc(x.title)}"></div><div class="formgrid"><div class="field"><label>Topic</label><input class="input" id="f-topic" value="${esc(x.topic)}"></div><div class="field"><label>Difficulty</label><input class="input" id="f-difficulty" value="${esc(x.difficulty)}"></div><div class="field"><label>Source</label><input class="input" id="f-source" value="${esc(x.source)}"></div><div class="field"><label>Status</label><input class="input" id="f-status" value="${esc(x.status)}"></div></div>`;if(state.type==='articles')fields=`<div class="field"><label>Title</label><input class="input" id="f-title" value="${esc(x.title)}"></div><div class="formgrid"><div class="field"><label>Category</label><input class="input" id="f-category" value="${esc(x.category)}"></div><div class="field"><label>Status</label><input class="input" id="f-status" value="${esc(x.status)}"></div></div><div class="field"><label>Excerpt</label><textarea class="textarea" id="f-excerpt" rows="3">${esc(x.excerpt)}</textarea></div><div class="field"><label>Body</label><textarea class="textarea" id="f-body" rows="7">${esc(x.body)}</textarea></div>`;if(state.type==='contests')fields=`<div class="field"><label>Title</label><input class="input" id="f-title" value="${esc(x.title)}"></div><div class="formgrid"><div class="field"><label>Year</label><input class="input" id="f-year" value="${esc(x.year)}"></div><div class="field"><label>Type</label><input class="input" id="f-type" value="${esc(x.type)}"></div><div class="field full"><label>Status</label><input class="input" id="f-status" value="${esc(x.status)}"></div></div><div class="field"><label>Description</label><textarea class="textarea" id="f-description" rows="5">${esc(x.description)}</textarea></div>`;return `<div class="bigcard" style="margin-top:25px"><div class="tag">${x.id?'EDIT':'CREATE'}</div>${fields}<div class="actionsline"><button class="btn primary" onclick="saveItem()">Save</button><button class="btn" onclick="state.editing=null;render()">Cancel</button></div></div>`}
-async function saveItem(){const x=state.editing, data={};document.querySelectorAll('[id^=f-]').forEach(el=>data[el.id.slice(2)]=el.value);try{if(x.id)await api(`/api/admin/${state.type}/${x.id}`,{method:'PUT',body:JSON.stringify(data)});else await api(`/api/admin/${state.type}`,{method:'POST',body:JSON.stringify(data)});state.editing=null;toast('Saved');render()}catch(e){toast(e.message)}}
-async function removeItem(id){if(!confirm('Delete this item?'))return;try{await api(`/api/admin/${state.type}/${id}`,{method:'DELETE'});toast('Deleted');render()}catch(e){toast(e.message)}}
-</script></body></html>
+
+function formHtml(x){
+  let fields='';
+  if(state.type==='problems')fields=`<div class="field"><label>Title</label><input class="input" id="f-title" value="${esc(x.title)}"></div><div class="formgrid"><div class="field"><label>Topic</label><input class="input" id="f-topic" value="${esc(x.topic)}"></div><div class="field"><label>Difficulty</label><input class="input" id="f-difficulty" value="${esc(x.difficulty)}"></div><div class="field"><label>Source</label><input class="input" id="f-source" value="${esc(x.source)}"></div><div class="field"><label>Status</label><input class="input" id="f-status" value="${esc(x.status)}"></div></div>`;
+  if(state.type==='articles')fields=`<div class="field"><label>Title</label><input class="input" id="f-title" value="${esc(x.title)}"></div><div class="formgrid"><div class="field"><label>Category</label><input class="input" id="f-category" value="${esc(x.category)}"></div><div class="field"><label>Status</label><input class="input" id="f-status" value="${esc(x.status)}"></div></div><div class="field"><label>Excerpt</label><textarea class="textarea" id="f-excerpt" rows="3">${esc(x.excerpt)}</textarea></div><div class="field"><label>Body</label><textarea class="textarea" id="f-body" rows="7">${esc(x.body)}</textarea></div>`;
+  if(state.type==='contests')fields=`<div class="field"><label>Title</label><input class="input" id="f-title" value="${esc(x.title)}"></div><div class="formgrid"><div class="field"><label>Year</label><input class="input" id="f-year" value="${esc(x.year)}"></div><div class="field"><label>Type</label><input class="input" id="f-type" value="${esc(x.type)}"></div><div class="field full"><label>Status</label><input class="input" id="f-status" value="${esc(x.status)}"></div></div><div class="field"><label>Description</label><textarea class="textarea" id="f-description" rows="5">${esc(x.description)}</textarea></div>`;
+  return `<div class="bigcard" style="margin-top:25px"><div class="tag">${x.id?'EDIT':'CREATE'}</div>${fields}<div class="actionsline"><button class="btn primary" onclick="saveItem()">Save</button><button class="btn" onclick="state.editing=null;render()">Cancel</button></div></div>`;
+}
+
+async function saveItem(){
+  const x=state.editing, data={};
+  document.querySelectorAll('[id^=f-]').forEach(el=>data[el.id.slice(2)]=el.value);
+  try{
+    if(x.id)await api(`/api/admin/${state.type}/${x.id}`,{method:'PUT',body:JSON.stringify(data)});
+    else await api(`/api/admin/${state.type}`,{method:'POST',body:JSON.stringify(data)});
+    state.editing=null;
+    toast('Saved');
+    render();
+  }catch(e){toast(e.message)}
+}
+
+async function removeItem(id){
+  if(!confirm('Delete this item?'))return;
+  try{
+    await api(`/api/admin/${state.type}/${id}`,{method:'DELETE'});
+    toast('Deleted');
+    render();
+  }catch(e){toast(e.message)}
+}
+</script>
+</body>
+</html>
