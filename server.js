@@ -2,13 +2,19 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const {URL} = require('url');
+const { URL } = require('url');
+const cors = require('cors'); // CORS modulu əlavə olundu
 
 const ROOT = __dirname;
-const PUBLIC = path.join(ROOT,'public');
-const DATA_DIR = path.join(ROOT,'data');
-const DB_FILE = path.join(DATA_DIR,'db.json');
-if(!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR,{recursive:true});
+const PUBLIC = path.join(ROOT, 'public');
+const DATA_DIR = path.join(ROOT, 'data');
+const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+// Əgər express istifadə edirsinizsə:
+// const app = express();
+// app.use(cors());
 
 const seed = {
   users: [],
