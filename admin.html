@@ -1,27 +1,22 @@
-<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ABLE — Admin</title>
-<link rel="stylesheet" href="/style.css">
-<script defer src="/app.js"></script>
-</head>
-<body>
-<div id="root"></div>
 <script>
 let state={type:'problems',editing:null};
-(async()=>{
+
+document.addEventListener('DOMContentLoaded', async () => {
   let user = null;
+
   try {
     const res = await api('/api/me');
     user = res.user;
-  } catch(e) {}
+  } catch(e) {
+    console.error('Admin authentication error:', e);
+  }
 
   if(!user || user.role !== 'admin'){
     document.getElementById('root').innerHTML=`<div style="padding:50px; text-align:center; color:#fff; font-family:sans-serif;"><h2>Access Denied</h2><p>Please log in with the admin account first.</p><a href="/" style="color:#60a5fa; text-decoration:underline;">Go to Home / Login</a></div>`;
     return;
   }
+
+  // BURADAN SONRA SƏNDƏ OLAN KOD EYNİ QALIR
 
   document.getElementById('root').innerHTML=`<header class="top"><div class="wrap nav"><a class="brand" href="/">ABLE</a><div class="actions"><a class="btn" href="/">View site</a><button class="btn" onclick="logout()">Log out</button></div></div></header><main class="admin"><div class="wrap"><div class="admin-grid"><aside class="admin-side"><button class="active" data-type="problems">Problems</button><button data-type="articles">Articles</button><button data-type="contests">Contests</button><button data-type="users">Users</button></aside><section class="admin-main" id="main"></section></div></div></main>`;
   
