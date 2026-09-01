@@ -530,22 +530,23 @@ function newItem() {
 
   state.editing = {
 
-    id:null,
+    id: null,
+    title: '',
+    topic: '',
+    difficulty: '',
+    source: '',
+    statement: '',
+    solution: '',
 
-    title:'',
-    topic:'',
-    difficulty:'',
-    source:'',
+    category: '',
+    excerpt: '',
+    body: '',
 
-    category:'',
-    excerpt:'',
-    body:'',
+    year: '',
+    type: '',
+    description: '',
 
-    year:'',
-    type:'',
-    description:'',
-
-    status:'published'
+    status: 'published'
 
   };
 
@@ -584,12 +585,9 @@ function formHtml(x) {
   if (state.type === 'problems') {
 
     fields = `
-
       <div class="field">
 
-        <label>
-          Title
-        </label>
+        <label>Title</label>
 
         <input
           class="input"
@@ -604,9 +602,7 @@ function formHtml(x) {
 
         <div class="field">
 
-          <label>
-            Topic
-          </label>
+          <label>Topic</label>
 
           <input
             class="input"
@@ -619,9 +615,7 @@ function formHtml(x) {
 
         <div class="field">
 
-          <label>
-            Difficulty
-          </label>
+          <label>Difficulty</label>
 
           <input
             class="input"
@@ -634,9 +628,7 @@ function formHtml(x) {
 
         <div class="field">
 
-          <label>
-            Source
-          </label>
+          <label>Source</label>
 
           <input
             class="input"
@@ -649,9 +641,7 @@ function formHtml(x) {
 
         <div class="field">
 
-          <label>
-            Status
-          </label>
+          <label>Status</label>
 
           <input
             class="input"
@@ -663,6 +653,33 @@ function formHtml(x) {
 
       </div>
 
+
+      <div class="field">
+
+        <label>Problem Statement</label>
+
+        <textarea
+          class="textarea"
+          id="f-statement"
+          rows="10"
+          placeholder="Write the full problem statement here..."
+        >${esc(x.statement)}</textarea>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Solution</label>
+
+        <textarea
+          class="textarea"
+          id="f-solution"
+          rows="15"
+          placeholder="Write the solution here..."
+        >${esc(x.solution)}</textarea>
+
+      </div>
     `;
   }
 
@@ -960,6 +977,5 @@ async function removeItem(id) {
 }
 
 </script>
-
 </body>
 </html>
