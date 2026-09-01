@@ -15,21 +15,177 @@
 
 <script>
 
-(async()=>{
+(async () => {
 
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
 
-  if(!id){
+  if (!id) {
     location.href = '/problems.html';
     return;
   }
 
-  const d = await api('/api/content');
+  try {
 
-  const problem = d.problems.find(p => p.id === id);
+    /* Backend API */
+    const response = await fetch(
+      'https://able-1-05s8.onrender.com/api/content'
+    );
 
-  if(!problem){
+    if (!response.ok) {
+      throw new Error('Failed to load problems');
+    }
+
+    const d = await response.json();
+
+    const problem = d.problems.find(p => p.id === id);
+
+    if (!problem) {
+
+      document.body.innerHTML = `
+        <div style="
+          padding:80px;
+          text-align:center;
+          color:white;
+          font-family:sans-serif;
+        ">
+          <h1>Problem not found</h1>
+
+          <a
+            href="/problems.html"
+            style="color:#60a5fa;"
+          >
+            Back to Problems
+          </a>
+        </div>
+      `;
+
+      return;
+    }
+
+    const esc = x =>
+      String(x || '')
+        .replace(/[&<>"']/g, c => ({
+          '&':'&amp;',
+          '<':'&lt;',
+          '>':'&gt;',
+          '"':'&quot;',
+          "'":'&#39;'
+        }[c]));
+
+    shell(
+      'Problems',
+      problem.title,
+
+      `
+
+      <section class="pagehero">
+
+        <div class="wrap">
+
+          <div class="eyebrow">
+            ${esc(problem.topic || 'Problem')}
+            ·
+            ${esc(problem.difficulty || '')}
+          </div>
+
+          <h1>
+            ${esc(problem.title)}
+          </h1>
+
+          <p class="lead">
+            Source:
+            ${esc(problem.source || 'ABLE Archive')}
+          </p>
+
+        </div>
+
+      </section>
+
+
+      <section class="section">
+
+        <div class="wrap">
+
+          <!-- PROBLEM -->
+
+          <article class="bigcard">
+
+            <div class="tag">
+              PROBLEM
+            </div>
+
+            <h2>
+              Statement
+            </h2>
+
+            <div style="
+              white-space:pre-wrap;
+              line-height:1.8;
+              font-size:18px;
+            ">
+${esc(
+  problem.statement ||
+  'The problem statement has not been added yet.'
+)}
+            </div>
+
+          </article>
+
+
+          <!-- SOLUTION -->
+
+          <article
+            class="bigcard"
+            style="margin-top:25px"
+          >
+
+            <div class="tag">
+              SOLUTION
+            </div>
+
+            <h2>
+              Solution
+            </h2>
+
+            <div style="
+              white-space:pre-wrap;
+              line-height:1.8;
+              font-size:18px;
+            ">
+${esc(
+  problem.solution ||
+  'The solution has not been added yet.'
+)}
+            </div>
+
+          </article>
+
+
+          <!-- BACK -->
+
+          <div style="margin-top:25px">
+
+            <a
+              class="btn"
+              href="/problems.html"
+            >
+              ← Back to Problems
+            </a>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      `
+    );
+
+  } catch (error) {
+
+    console.error('Problem loading error:', error);
+
     document.body.innerHTML = `
       <div style="
         padding:80px;
@@ -37,116 +193,24 @@
         color:white;
         font-family:sans-serif;
       ">
-        <h1>Problem not found</h1>
-        <a href="/problems.html">
-          Back to Problems
-        </a>
-      </div>
-    `;
-    return;
-  }
 
-  const esc = x =>
-    String(x || '')
-      .replace(/[&<>"']/g,c => ({
-        '&':'&amp;',
-        '<':'&lt;',
-        '>':'&gt;',
-        '"':'&quot;',
-        "'":'&#39;'
-      }[c]));
+        <h1>Unable to load problem</h1>
 
-  shell(
-    'Problems',
-    problem.title,
-    `
-
-    <section class="pagehero">
-
-      <div class="wrap">
-
-        <div class="eyebrow">
-          ${esc(problem.topic || 'Problem')}
-          ·
-          ${esc(problem.difficulty || '')}
-        </div>
-
-        <h1>
-          ${esc(problem.title)}
-        </h1>
-
-        <p class="lead">
-          Source: ${esc(problem.source || 'ABLE Archive')}
+        <p>
+          Please try again in a moment.
         </p>
 
-      </div>
-
-    </section>
-
-
-    <section class="section">
-
-      <div class="wrap">
-
-        <article class="bigcard">
-
-          <div class="tag">
-            PROBLEM
-          </div>
-
-          <h2>
-            Statement
-          </h2>
-
-          <div style="
-            white-space:pre-wrap;
-            line-height:1.8;
-            font-size:18px;
-          ">
-${esc(problem.statement || 'The problem statement has not been added yet.')}
-          </div>
-
-        </article>
-
-
-        <article class="bigcard" style="margin-top:25px">
-
-          <div class="tag">
-            SOLUTION
-          </div>
-
-          <h2>
-            Solution
-          </h2>
-
-          <div style="
-            white-space:pre-wrap;
-            line-height:1.8;
-            font-size:18px;
-          ">
-${esc(problem.solution || 'The solution has not been added yet.')}
-          </div>
-
-        </article>
-
-
-        <div style="margin-top:25px">
-
-          <a
-            class="btn"
-            href="/problems.html"
-          >
-            ← Back to Problems
-          </a>
-
-        </div>
+        <a
+          href="/problems.html"
+          style="color:#60a5fa;"
+        >
+          ← Back to Problems
+        </a>
 
       </div>
+    `;
 
-    </section>
-
-    `
-  );
+  }
 
 })();
 
