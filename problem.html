@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html>
 
@@ -10,7 +9,12 @@
 <title>ABLE — Problem</title>
 
 <link rel="stylesheet" href="/style.css">
-<script defer src="/app.js"></script>
+
+<!-- IMPORTANT:
+     app.js MUST load before the code below,
+     because problem page uses api() and shell().
+-->
+<script src="/app.js"></script>
 
 <!-- MathJax -->
 <script>
@@ -25,6 +29,7 @@ window.MathJax = {
       ['$$', '$$']
     ]
   },
+
   svg: {
     fontCache: 'global'
   }
@@ -55,36 +60,65 @@ window.MathJax = {
 
   try {
 
-    /* Get problem from backend */
+    /*
+      Load content through the same API
+      used everywhere else on the website.
+    */
+
     const d = await api('/api/content');
 
-    const problem = d.problems.find(p => p.id === id);
+    const problem = d.problems.find(
+      p => p.id === id
+    );
+
+
+    /*
+      Problem not found
+    */
 
     if (!problem) {
 
       document.body.innerHTML = `
+
         <div style="
-          padding:80px;
-          text-align:center;
+          min-height:100vh;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:#07080a;
           color:white;
           font-family:sans-serif;
+          text-align:center;
+          padding:40px;
         ">
 
-          <h1>Problem not found</h1>
+          <div>
 
-          <a
-            href="/problems.html"
-            style="color:#60a5fa;"
-          >
-            ← Back to Problems
-          </a>
+            <h1>
+              Problem not found
+            </h1>
+
+            <a
+              href="/problems.html"
+              style="color:#60a5fa;"
+            >
+              ← Back to Problems
+            </a>
+
+          </div>
 
         </div>
+
       `;
 
       return;
     }
 
+
+    /*
+      Escape HTML safely.
+      This does NOT remove LaTeX commands.
+    */
 
     function esc(x = '') {
 
@@ -100,63 +134,113 @@ window.MathJax = {
     }
 
 
+    /*
+      Build the page
+    */
+
     shell(
       'Problems',
       problem.title,
 
       `
 
-      <!-- HERO -->
+      <main
+        class="problem-page"
+        style="
+          background:
+            radial-gradient(
+              circle at 20% 0%,
+              rgba(25,70,75,.18),
+              transparent 38%
+            ),
+            radial-gradient(
+              circle at 85% 0%,
+              rgba(45,45,80,.18),
+              transparent 40%
+            ),
+            #07080a;
 
-      <section class="pagehero">
-
-        <div class="wrap">
-
-          <div class="eyebrow">
-            ${esc(problem.topic || 'Problem')}
-            ${problem.difficulty
-              ? ` · ${esc(problem.difficulty)}`
-              : ''
-            }
-          </div>
-
-          <h1>
-            ${esc(problem.title)}
-          </h1>
-
-          <p class="lead">
-            Source: ${esc(problem.source || 'ABLE Archive')}
-          </p>
-
-        </div>
-
-      </section>
+          min-height:calc(100vh - 70px);
+        "
+      >
 
 
-      <!-- PROBLEM CONTENT -->
+        <!-- HERO + PROBLEM ARE NOW ONE CONTINUOUS AREA -->
 
-      <section class="section">
+        <section
+          style="
+            background:transparent;
+            border:0;
+            box-shadow:none;
+            padding:70px 0 80px;
+          "
+        >
 
-        <div class="wrap">
-
-          <main
-            id="problem-content"
+          <div
+            class="wrap"
             style="
-              max-width:850px;
+              max-width:900px;
               margin:0 auto;
-              padding:10px 0 70px;
             "
           >
 
-            <!-- STATEMENT -->
+            <!-- TOP LABEL -->
 
             <div
-              id="problem-statement"
+              class="eyebrow"
               style="
-                white-space:pre-wrap;
+                margin-bottom:14px;
+              "
+            >
+              ${esc(problem.topic || 'PROBLEM')}
+              ${
+                problem.difficulty
+                  ? ` · ${esc(problem.difficulty)}`
+                  : ''
+              }
+            </div>
+
+
+            <!-- TITLE -->
+
+            <h1
+              style="
+                margin:0;
+                font-size:clamp(42px,6vw,72px);
+                line-height:1.02;
+                letter-spacing:-.045em;
+              "
+            >
+              ${esc(problem.title)}
+            </h1>
+
+
+            <!-- SOURCE -->
+
+            <p
+              style="
+                margin-top:18px;
+                margin-bottom:0;
+                color:#8fa4c4;
+                font-size:14px;
+              "
+            >
+              Source:
+              ${esc(problem.source || 'ABLE Archive')}
+            </p>
+
+
+            <!-- PROBLEM STATEMENT -->
+
+            <div
+              id="problem-content"
+              style="
+                margin-top:55px;
+                max-width:850px;
+                color:#eef2f7;
+                font-size:19px;
                 line-height:1.9;
-                font-size:18px;
-                color:#f1f5f9;
+                white-space:pre-wrap;
               "
             >
 ${esc(
@@ -171,10 +255,14 @@ ${esc(
             ${
               problem.solution
                 ? `
-                  <div style="
-                    margin-top:40px;
-                    padding-top:25px;
-                  ">
+
+                  <div
+                    style="
+                      margin-top:55px;
+                      padding-top:28px;
+                      border-top:1px solid rgba(255,255,255,.08);
+                    "
+                  >
 
                     <button
                       id="solution-btn"
@@ -186,6 +274,7 @@ ${esc(
                     </button>
 
                   </div>
+
                 `
                 : ''
             }
@@ -196,23 +285,24 @@ ${esc(
             ${
               problem.solution
                 ? `
+
                   <div
                     id="solution-section"
                     style="
                       display:none;
-                      margin-top:45px;
-                      padding:28px 0 10px;
+                      margin-top:50px;
+                      max-width:850px;
                     "
                   >
 
                     <div
                       style="
+                        color:#9bb7df;
                         font-size:13px;
-                        letter-spacing:.16em;
-                        text-transform:uppercase;
-                        color:#8da4c7;
-                        margin-bottom:20px;
                         font-weight:600;
+                        letter-spacing:.18em;
+                        text-transform:uppercase;
+                        margin-bottom:28px;
                       "
                     >
                       Solution:
@@ -222,16 +312,17 @@ ${esc(
                     <div
                       id="solution-content"
                       style="
-                        white-space:pre-wrap;
+                        color:#eef2f7;
+                        font-size:19px;
                         line-height:1.9;
-                        font-size:18px;
-                        color:#e8edf5;
+                        white-space:pre-wrap;
                       "
                     >
 ${esc(problem.solution)}
                     </div>
 
                   </div>
+
                 `
                 : ''
             }
@@ -239,9 +330,11 @@ ${esc(problem.solution)}
 
             <!-- BACK -->
 
-            <div style="
-              margin-top:45px;
-            ">
+            <div
+              style="
+                margin-top:60px;
+              "
+            >
 
               <a
                 class="btn"
@@ -252,11 +345,11 @@ ${esc(problem.solution)}
 
             </div>
 
-          </main>
+          </div>
 
-        </div>
+        </section>
 
-      </section>
+      </main>
 
       `
     );
@@ -269,44 +362,59 @@ ${esc(problem.solution)}
     window.showSolution = function() {
 
       const section =
-        document.getElementById('solution-section');
+        document.getElementById(
+          'solution-section'
+        );
 
       const button =
-        document.getElementById('solution-btn');
+        document.getElementById(
+          'solution-btn'
+        );
 
       if (!section) return;
 
+
+      /*
+        Show solution
+      */
+
       section.style.display = 'block';
+
+
+      /*
+        Hide button
+      */
 
       if (button) {
         button.style.display = 'none';
       }
 
+
       /*
-        Render LaTeX inside solution
+        Render LaTeX
       */
 
-      if (
-        window.MathJax &&
-        MathJax.typesetPromise
-      ) {
+      renderMath();
 
-        MathJax.typesetPromise([
-          document.getElementById('problem-content')
-        ]);
 
-      }
+      /*
+        Smoothly move to solution
+      */
 
-      section.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
-      });
+      setTimeout(() => {
+
+        section.scrollIntoView({
+          behavior:'smooth',
+          block:'start'
+        });
+
+      }, 100);
 
     };
 
 
     /*
-      Render LaTeX in the problem statement
+      Render MathJax
     */
 
     function renderMath() {
@@ -317,16 +425,30 @@ ${esc(problem.solution)}
       ) {
 
         MathJax.typesetPromise([
-          document.getElementById('problem-content')
+          document.getElementById(
+            'problem-content'
+          ),
+          document.getElementById(
+            'solution-content'
+          )
         ]);
 
       } else {
 
-        setTimeout(renderMath, 300);
+        setTimeout(
+          renderMath,
+          300
+        );
 
       }
 
     }
+
+
+    /*
+      Render the problem LaTeX
+      immediately after page loads.
+    */
 
     renderMath();
 
@@ -338,29 +460,50 @@ ${esc(problem.solution)}
       error
     );
 
+
     document.body.innerHTML = `
 
-      <div style="
-        padding:80px;
-        text-align:center;
-        color:white;
-        font-family:sans-serif;
-      ">
+      <div
+        style="
+          min-height:100vh;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:#07080a;
+          color:white;
+          font-family:sans-serif;
+          text-align:center;
+          padding:40px;
+        "
+      >
 
-        <h1>
-          Unable to load problem
-        </h1>
+        <div>
 
-        <p>
-          Please try again in a moment.
-        </p>
+          <h1>
+            Unable to load problem
+          </h1>
 
-        <a
-          href="/problems.html"
-          style="color:#60a5fa;"
-        >
-          ← Back to Problems
-        </a>
+          <p
+            style="
+              color:#94a3b8;
+              margin-top:15px;
+            "
+          >
+            Please try again in a moment.
+          </p>
+
+          <a
+            href="/problems.html"
+            style="
+              color:#60a5fa;
+              display:inline-block;
+              margin-top:15px;
+            "
+          >
+            ← Back to Problems
+          </a>
+
+        </div>
 
       </div>
 
