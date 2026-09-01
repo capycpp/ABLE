@@ -11,54 +11,93 @@
 <body>
 
 <script>
-document.addEventListener('DOMContentLoaded', async () => {
+(async()=>{
 
   const d = await api('/api/content');
 
-  const cards = d.problems.map(p => `
-    <article class="card">
-      <div class="tag">${p.topic || 'Problem'} · ${p.difficulty || ''}</div>
-      <h3>${p.title}</h3>
-      <p>Source: ${p.source || 'ABLE Archive'}</p>
-      <div class="meta">
-        <span>${p.status || 'published'}</span>
-        <span>Open →</span>
-      </div>
-    </article>
-  `).join('');
+  function card(p){
+    return `
+      <article class="card">
+
+        <div class="tag">
+          ${p.topic || 'Problem'} · ${p.difficulty || ''}
+        </div>
+
+        <h3>${p.title}</h3>
+
+        <p>
+          Source: ${p.source || 'ABLE Archive'}
+        </p>
+
+        <div class="meta">
+          <span>${p.status || 'published'}</span>
+
+          <a
+            href="/problem.html?id=${encodeURIComponent(p.id)}"
+            style="color:inherit;text-decoration:none;cursor:pointer;"
+          >
+            Read →
+          </a>
+        </div>
+
+      </article>
+    `;
+  }
+
+  const cards = d.problems.map(card).join('');
 
   shell(
     'Problems',
     'Problems',
     `
-      <section class="pagehero">
-        <div class="wrap">
-          <div class="eyebrow">01 — Problems</div>
-          <h1>Problems worth<br>struggling with.</h1>
-          <p class="lead">
-            A clean, growing archive of olympiad problems. No productivity noise —
-            just the problem, the idea and the solution.
-          </p>
+    <section class="pagehero">
+      <div class="wrap">
+
+        <div class="eyebrow">01 — Problems</div>
+
+        <h1>
+          Problems worth<br>
+          struggling with.
+        </h1>
+
+        <p class="lead">
+          A clean, growing archive of olympiad problems.
+          No productivity noise — just the problem,
+          the idea and the solution.
+        </p>
+
+      </div>
+    </section>
+
+    <section class="section">
+
+      <div class="wrap">
+
+        <div class="toolbar">
+
+          <input
+            class="input"
+            id="search"
+            placeholder="Search problems..."
+          >
+
+          <select class="select" id="topic">
+            <option>All topics</option>
+            <option>Functional Equations</option>
+            <option>Geometry</option>
+            <option>Number Theory</option>
+            <option>Combinatorics</option>
+          </select>
+
         </div>
-      </section>
 
-      <section class="section">
-        <div class="wrap">
-          <div class="toolbar">
-            <input class="input" id="search" placeholder="Search problems...">
-
-            <select class="select" id="topic">
-              <option>All topics</option>
-              <option>Functional Equations</option>
-              <option>Geometry</option>
-              <option>Number Theory</option>
-              <option>Combinatorics</option>
-            </select>
-          </div>
-
-          <div class="cards" id="cards">${cards}</div>
+        <div class="cards" id="cards">
+          ${cards}
         </div>
-      </section>
+
+      </div>
+
+    </section>
     `
   );
 
@@ -67,32 +106,28 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('search').oninput = filter;
   document.getElementById('topic').onchange = filter;
 
-  function filter() {
-    const q = document.getElementById('search').value.toLowerCase();
-    const t = document.getElementById('topic').value;
+  function filter(){
+
+    const q =
+      document
+        .getElementById('search')
+        .value
+        .toLowerCase();
+
+    const t =
+      document.getElementById('topic').value;
+
+    const filtered = all.filter(p =>
+      (!q || p.title.toLowerCase().includes(q)) &&
+      (t === 'All topics' || p.topic === t)
+    );
 
     document.getElementById('cards').innerHTML =
-      all
-        .filter(p =>
-          (!q || p.title.toLowerCase().includes(q)) &&
-          (t === 'All topics' || p.topic === t)
-        )
-        .map(p => `
-          <article class="card">
-            <div class="tag">${p.topic || 'Problem'} · ${p.difficulty || ''}</div>
-            <h3>${p.title}</h3>
-            <p>Source: ${p.source || 'ABLE Archive'}</p>
-            <div class="meta">
-              <span>${p.status || 'published'}</span>
-              <span>Open →</span>
-            </div>
-          </article>
-        `)
-        .join('') ||
+      filtered.map(card).join('') ||
       '<div class="empty">No problems found.</div>';
   }
 
-});
+})();
 </script>
 
 </body>
