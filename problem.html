@@ -1,18 +1,43 @@
+
 <!doctype html>
 <html>
 
 <head>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>ABLE — Problem</title>
 
 <link rel="stylesheet" href="/style.css">
+<script defer src="/app.js"></script>
 
-<!-- IMPORTANT: defer-i sildik -->
-<script src="/app.js"></script>
+<!-- MathJax -->
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [
+      ['\\(', '\\)'],
+      ['$', '$']
+    ],
+    displayMath: [
+      ['\\[', '\\]'],
+      ['$$', '$$']
+    ]
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
+</script>
+
+<script
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
 
 </head>
+
 
 <body>
 
@@ -30,10 +55,7 @@
 
   try {
 
-    /*
-      app.js-dəki api() funksiyasından istifadə edirik.
-      Burada artıq backend URL yazmağa ehtiyac yoxdur.
-    */
+    /* Get problem from backend */
     const d = await api('/api/content');
 
     const problem = d.problems.find(p => p.id === id);
@@ -63,8 +85,10 @@
       return;
     }
 
-    const esc = x =>
-      String(x || '')
+
+    function esc(x = '') {
+
+      return String(x)
         .replace(/[&<>"']/g, c => ({
           '&':'&amp;',
           '<':'&lt;',
@@ -73,11 +97,16 @@
           "'":'&#39;'
         }[c]));
 
+    }
+
+
     shell(
       'Problems',
       problem.title,
 
       `
+
+      <!-- HERO -->
 
       <section class="pagehero">
 
@@ -85,7 +114,10 @@
 
           <div class="eyebrow">
             ${esc(problem.topic || 'Problem')}
-            ${problem.difficulty ? ' · ' + esc(problem.difficulty) : ''}
+            ${problem.difficulty
+              ? ` · ${esc(problem.difficulty)}`
+              : ''
+            }
           </div>
 
           <h1>
@@ -101,77 +133,126 @@
       </section>
 
 
+      <!-- PROBLEM CONTENT -->
+
       <section class="section">
 
         <div class="wrap">
 
-          <!-- PROBLEM -->
+          <main
+            id="problem-content"
+            style="
+              max-width:850px;
+              margin:0 auto;
+              padding:10px 0 70px;
+            "
+          >
 
-          <article class="bigcard">
+            <!-- STATEMENT -->
 
-            <div class="tag">
-              PROBLEM
-            </div>
-
-            <h2>
-              Statement
-            </h2>
-
-            <div style="
-              white-space:pre-wrap;
-              line-height:1.8;
-              font-size:18px;
-            ">
+            <div
+              id="problem-statement"
+              style="
+                white-space:pre-wrap;
+                line-height:1.9;
+                font-size:18px;
+                color:#f1f5f9;
+              "
+            >
 ${esc(
   problem.statement ||
   'The problem statement has not been added yet.'
 )}
             </div>
 
-          </article>
+
+            <!-- SHOW SOLUTION -->
+
+            ${
+              problem.solution
+                ? `
+                  <div style="
+                    margin-top:40px;
+                    padding-top:25px;
+                  ">
+
+                    <button
+                      id="solution-btn"
+                      class="btn primary"
+                      type="button"
+                      onclick="showSolution()"
+                    >
+                      Show solution
+                    </button>
+
+                  </div>
+                `
+                : ''
+            }
 
 
-          <!-- SOLUTION -->
+            <!-- SOLUTION -->
 
-          <article
-            class="bigcard"
-            style="margin-top:25px"
-          >
+            ${
+              problem.solution
+                ? `
+                  <div
+                    id="solution-section"
+                    style="
+                      display:none;
+                      margin-top:45px;
+                      padding:28px 0 10px;
+                    "
+                  >
 
-            <div class="tag">
-              SOLUTION
-            </div>
+                    <div
+                      style="
+                        font-size:13px;
+                        letter-spacing:.16em;
+                        text-transform:uppercase;
+                        color:#8da4c7;
+                        margin-bottom:20px;
+                        font-weight:600;
+                      "
+                    >
+                      Solution:
+                    </div>
 
-            <h2>
-              Solution
-            </h2>
+
+                    <div
+                      id="solution-content"
+                      style="
+                        white-space:pre-wrap;
+                        line-height:1.9;
+                        font-size:18px;
+                        color:#e8edf5;
+                      "
+                    >
+${esc(problem.solution)}
+                    </div>
+
+                  </div>
+                `
+                : ''
+            }
+
+
+            <!-- BACK -->
 
             <div style="
-              white-space:pre-wrap;
-              line-height:1.8;
-              font-size:18px;
+              margin-top:45px;
             ">
-${esc(
-  problem.solution ||
-  'The solution has not been added yet.'
-)}
+
+              <a
+                class="btn"
+                href="/problems.html"
+              >
+                ← Back to Problems
+              </a>
+
             </div>
 
-          </article>
-
-
-          <!-- BACK -->
-
-          <div style="margin-top:25px">
-
-            <a
-              class="btn"
-              href="/problems.html"
-            >
-              ← Back to Problems
-            </a>
-
-          </div>
+          </main>
 
         </div>
 
@@ -180,11 +261,85 @@ ${esc(
       `
     );
 
+
+    /*
+      SHOW SOLUTION
+    */
+
+    window.showSolution = function() {
+
+      const section =
+        document.getElementById('solution-section');
+
+      const button =
+        document.getElementById('solution-btn');
+
+      if (!section) return;
+
+      section.style.display = 'block';
+
+      if (button) {
+        button.style.display = 'none';
+      }
+
+      /*
+        Render LaTeX inside solution
+      */
+
+      if (
+        window.MathJax &&
+        MathJax.typesetPromise
+      ) {
+
+        MathJax.typesetPromise([
+          document.getElementById('problem-content')
+        ]);
+
+      }
+
+      section.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+
+    };
+
+
+    /*
+      Render LaTeX in the problem statement
+    */
+
+    function renderMath() {
+
+      if (
+        window.MathJax &&
+        MathJax.typesetPromise
+      ) {
+
+        MathJax.typesetPromise([
+          document.getElementById('problem-content')
+        ]);
+
+      } else {
+
+        setTimeout(renderMath, 300);
+
+      }
+
+    }
+
+    renderMath();
+
+
   } catch (error) {
 
-    console.error('Problem loading error:', error);
+    console.error(
+      'Problem loading error:',
+      error
+    );
 
     document.body.innerHTML = `
+
       <div style="
         padding:80px;
         text-align:center;
@@ -192,7 +347,9 @@ ${esc(
         font-family:sans-serif;
       ">
 
-        <h1>Unable to load problem</h1>
+        <h1>
+          Unable to load problem
+        </h1>
 
         <p>
           Please try again in a moment.
@@ -206,6 +363,7 @@ ${esc(
         </a>
 
       </div>
+
     `;
 
   }
