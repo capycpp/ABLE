@@ -1,0 +1,156 @@
+<!doctype html>
+<html>
+
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>ABLE — Problem</title>
+
+<link rel="stylesheet" href="/style.css">
+<script defer src="/app.js"></script>
+</head>
+
+<body>
+
+<script>
+
+(async()=>{
+
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+
+  if(!id){
+    location.href = '/problems.html';
+    return;
+  }
+
+  const d = await api('/api/content');
+
+  const problem = d.problems.find(p => p.id === id);
+
+  if(!problem){
+    document.body.innerHTML = `
+      <div style="
+        padding:80px;
+        text-align:center;
+        color:white;
+        font-family:sans-serif;
+      ">
+        <h1>Problem not found</h1>
+        <a href="/problems.html">
+          Back to Problems
+        </a>
+      </div>
+    `;
+    return;
+  }
+
+  const esc = x =>
+    String(x || '')
+      .replace(/[&<>"']/g,c => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+      }[c]));
+
+  shell(
+    'Problems',
+    problem.title,
+    `
+
+    <section class="pagehero">
+
+      <div class="wrap">
+
+        <div class="eyebrow">
+          ${esc(problem.topic || 'Problem')}
+          ·
+          ${esc(problem.difficulty || '')}
+        </div>
+
+        <h1>
+          ${esc(problem.title)}
+        </h1>
+
+        <p class="lead">
+          Source: ${esc(problem.source || 'ABLE Archive')}
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <section class="section">
+
+      <div class="wrap">
+
+        <article class="bigcard">
+
+          <div class="tag">
+            PROBLEM
+          </div>
+
+          <h2>
+            Statement
+          </h2>
+
+          <div style="
+            white-space:pre-wrap;
+            line-height:1.8;
+            font-size:18px;
+          ">
+${esc(problem.statement || 'The problem statement has not been added yet.')}
+          </div>
+
+        </article>
+
+
+        <article class="bigcard" style="margin-top:25px">
+
+          <div class="tag">
+            SOLUTION
+          </div>
+
+          <h2>
+            Solution
+          </h2>
+
+          <div style="
+            white-space:pre-wrap;
+            line-height:1.8;
+            font-size:18px;
+          ">
+${esc(problem.solution || 'The solution has not been added yet.')}
+          </div>
+
+        </article>
+
+
+        <div style="margin-top:25px">
+
+          <a
+            class="btn"
+            href="/problems.html"
+          >
+            ← Back to Problems
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    `
+  );
+
+})();
+
+</script>
+
+</body>
+</html>
