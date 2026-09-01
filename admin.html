@@ -13,6 +13,7 @@
 <div id="root"></div>
 
 <script>
+
 let state = {
   type: 'problems',
   editing: null
@@ -26,15 +27,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const res = await api('/api/me');
     user = res.user;
   } catch (e) {
-    console.error('Admin authentication error:', e);
+    console.error('Authentication error:', e);
   }
 
   if (!user || user.role !== 'admin') {
     document.getElementById('root').innerHTML = `
-      <div style="padding:50px; text-align:center; color:#fff; font-family:sans-serif;">
+      <div style="
+        padding:50px;
+        text-align:center;
+        color:#fff;
+        font-family:sans-serif;
+      ">
         <h2>Access Denied</h2>
         <p>Please log in with the admin account first.</p>
-        <a href="/login.html" style="color:#60a5fa; text-decoration:underline;">
+
+        <a
+          href="/login.html"
+          style="color:#60a5fa;text-decoration:underline;"
+        >
           Go to Login
         </a>
       </div>
@@ -43,50 +53,113 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   document.getElementById('root').innerHTML = `
+
     <header class="top">
+
       <div class="wrap nav">
-        <a class="brand" href="/">ABLE</a>
+
+        <a class="brand" href="/">
+          ABLE
+        </a>
 
         <div class="actions">
-          <a class="btn" href="/">View site</a>
-          <button class="btn" onclick="logout()">Log out</button>
+
+          <span
+            style="
+              color:#aeb7c8;
+              margin-right:10px;
+              font-size:14px;
+            "
+          >
+            ${esc(user.name)}
+          </span>
+
+          <a class="btn" href="/">
+            View site
+          </a>
+
+          <button
+            class="btn"
+            onclick="logout()"
+          >
+            Log out
+          </button>
+
         </div>
+
       </div>
+
     </header>
 
     <main class="admin">
+
       <div class="wrap">
+
         <div class="admin-grid">
 
           <aside class="admin-side">
-            <button class="active" data-type="problems">Problems</button>
-            <button data-type="articles">Articles</button>
-            <button data-type="contests">Contests</button>
-            <button data-type="users">Users</button>
+
+            <button
+              class="active"
+              data-type="problems"
+            >
+              Problems
+            </button>
+
+            <button
+              data-type="articles"
+            >
+              Articles
+            </button>
+
+            <button
+              data-type="contests"
+            >
+              Contests
+            </button>
+
+            <button
+              data-type="users"
+            >
+              Users
+            </button>
+
           </aside>
 
-          <section class="admin-main" id="main"></section>
+          <section
+            class="admin-main"
+            id="main"
+          ></section>
 
         </div>
+
       </div>
+
     </main>
   `;
 
-  document.querySelectorAll('.admin-side button').forEach(b => {
-    b.onclick = () => {
+  document
+    .querySelectorAll('.admin-side button')
+    .forEach(button => {
 
-      document
-        .querySelectorAll('.admin-side button')
-        .forEach(x => x.classList.remove('active'));
+      button.addEventListener('click', () => {
 
-      b.classList.add('active');
+        document
+          .querySelectorAll('.admin-side button')
+          .forEach(x => {
+            x.classList.remove('active');
+          });
 
-      state.type = b.dataset.type;
-      state.editing = null;
+        button.classList.add('active');
 
-      render();
-    };
-  });
+        state.type = button.dataset.type;
+        state.editing = null;
+
+        render();
+
+      });
+
+    });
 
   render();
 
@@ -99,141 +172,407 @@ async function render() {
 
   if (!m) return;
 
-  if (state.type === 'users') {
+  /*
+   * USERS
+   */
 
-    const d = await api('/api/admin/users');
+  if (state.type === 'users') {
 
     m.innerHTML = `
       <div class="admin-head">
+
         <div>
-          <div class="eyebrow">Admin</div>
-          <h2>Users</h2>
+          <div class="eyebrow">
+            Admin
+          </div>
+
+          <h2>
+            Users
+          </h2>
         </div>
+
       </div>
 
-      <table class="table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Created</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${d.users.map(u => `
-            <tr>
-              <td>${esc(u.name)}</td>
-              <td>${esc(u.email)}</td>
-              <td>${u.role}</td>
-              <td>${new Date(u.createdAt).toLocaleDateString()}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+      <div style="
+        padding:25px;
+        color:#aeb7c8;
+      ">
+        Loading users...
+      </div>
     `;
 
-    return;
-  }
+    try {
 
-  const d = await api('/api/content');
-  const items = d[state.type];
+      const d = await api('/api/admin/users');
 
-  m.innerHTML = `
-    <div class="admin-head">
-      <div>
-        <div class="eyebrow">Content manager</div>
-        <h2>${state.type[0].toUpperCase() + state.type.slice(1)}</h2>
-      </div>
+      if (!d || !Array.isArray(d.users)) {
+        throw new Error('Invalid users response from server.');
+      }
 
-      <button class="btn primary" onclick="newItem()">
-        + New
-      </button>
-    </div>
+      if (d.users.length === 0) {
 
-    <div class="rows">
-      ${items.map(x => `
-        <div class="row">
+        m.innerHTML = `
+          <div class="admin-head">
+            <div>
+              <div class="eyebrow">Admin</div>
+              <h2>Users</h2>
+            </div>
+          </div>
 
-          <div>
-            <h3>${esc(x.title)}</h3>
+          <div class="bigcard">
+            <h3>No users found.</h3>
             <p>
-              ${esc(
-                x.excerpt ||
-                x.description ||
-                x.topic ||
-                x.category ||
-                ''
-              )}
+              There are currently no registered users.
             </p>
           </div>
+        `;
+
+        return;
+      }
+
+      m.innerHTML = `
+
+        <div class="admin-head">
 
           <div>
-            ${esc(x.status || 'published')}
+            <div class="eyebrow">
+              Admin
+            </div>
+
+            <h2>
+              Users
+            </h2>
           </div>
 
-          <div class="right">
-            <button class="btn" onclick="editItem('${x.id}')">
-              Edit
-            </button>
-
-            <button class="btn" onclick="removeItem('${x.id}')">
-              Delete
-            </button>
+          <div style="
+            color:#9ca7bb;
+            font-size:14px;
+          ">
+            ${d.users.length} user${d.users.length === 1 ? '' : 's'}
           </div>
 
         </div>
-      `).join('')}
-    </div>
 
-    ${state.editing ? formHtml(state.editing) : ''}
-  `;
+        <div class="bigcard">
+
+          <div style="overflow-x:auto;">
+
+            <table class="table">
+
+              <thead>
+
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Created</th>
+                </tr>
+
+              </thead>
+
+              <tbody>
+
+                ${d.users.map(u => `
+
+                  <tr>
+
+                    <td>
+                      ${esc(u.name)}
+                    </td>
+
+                    <td>
+                      ${esc(u.email)}
+                    </td>
+
+                    <td>
+                      ${esc(u.role)}
+                    </td>
+
+                    <td>
+                      ${
+                        u.createdAt
+                          ? new Date(u.createdAt)
+                              .toLocaleDateString()
+                          : '—'
+                      }
+                    </td>
+
+                  </tr>
+
+                `).join('')}
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+        </div>
+      `;
+
+      return;
+
+    } catch (e) {
+
+      console.error(
+        'Users loading error:',
+        e
+      );
+
+      m.innerHTML = `
+
+        <div class="admin-head">
+
+          <div>
+            <div class="eyebrow">
+              Admin
+            </div>
+
+            <h2>
+              Users
+            </h2>
+          </div>
+
+        </div>
+
+        <div class="bigcard">
+
+          <h3>
+            Could not load users
+          </h3>
+
+          <p style="
+            color:#aeb7c8;
+            margin-top:10px;
+          ">
+            ${esc(e.message || 'Unknown error')}
+          </p>
+
+          <button
+            class="btn primary"
+            style="margin-top:20px"
+            onclick="render()"
+          >
+            Try Again
+          </button>
+
+        </div>
+
+      `;
+
+      return;
+    }
+  }
+
+
+  /*
+   * PROBLEMS / ARTICLES / CONTESTS
+   */
+
+  try {
+
+    const d = await api('/api/content');
+
+    const items = Array.isArray(d[state.type])
+      ? d[state.type]
+      : [];
+
+    m.innerHTML = `
+
+      <div class="admin-head">
+
+        <div>
+
+          <div class="eyebrow">
+            Content manager
+          </div>
+
+          <h2>
+            ${
+              state.type[0].toUpperCase()
+              + state.type.slice(1)
+            }
+          </h2>
+
+        </div>
+
+        <button
+          class="btn primary"
+          onclick="newItem()"
+        >
+          + New
+        </button>
+
+      </div>
+
+      <div class="rows">
+
+        ${
+          items.length
+          ? items.map(x => `
+
+            <div class="row">
+
+              <div>
+
+                <h3>
+                  ${esc(x.title)}
+                </h3>
+
+                <p>
+                  ${esc(
+                    x.excerpt ||
+                    x.description ||
+                    x.topic ||
+                    x.category ||
+                    ''
+                  )}
+                </p>
+
+              </div>
+
+              <div>
+                ${esc(x.status || 'published')}
+              </div>
+
+              <div class="right">
+
+                <button
+                  class="btn"
+                  onclick="editItem('${esc(x.id)}')"
+                >
+                  Edit
+                </button>
+
+                <button
+                  class="btn"
+                  onclick="removeItem('${esc(x.id)}')"
+                >
+                  Delete
+                </button>
+
+              </div>
+
+            </div>
+
+          `).join('')
+
+          : `
+            <div class="bigcard">
+              <h3>No items found.</h3>
+            </div>
+          `
+        }
+
+      </div>
+
+      ${
+        state.editing
+          ? formHtml(state.editing)
+          : ''
+      }
+
+    `;
+
+  } catch (e) {
+
+    console.error(
+      'Content loading error:',
+      e
+    );
+
+    m.innerHTML = `
+
+      <div class="bigcard">
+
+        <h3>
+          Could not load content
+        </h3>
+
+        <p style="color:#aeb7c8">
+          ${esc(e.message)}
+        </p>
+
+        <button
+          class="btn primary"
+          style="margin-top:20px"
+          onclick="render()"
+        >
+          Try Again
+        </button>
+
+      </div>
+
+    `;
+  }
+
 }
 
 
 function esc(x = '') {
+
   return String(x).replace(
     /[&<>"']/g,
+
     c => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#39;'
     }[c])
   );
+
 }
 
 
 function newItem() {
 
   state.editing = {
-    id: null,
-    title: '',
-    topic: '',
-    difficulty: '',
-    source: '',
-    category: '',
-    excerpt: '',
-    body: '',
-    year: '',
-    type: '',
-    description: '',
-    status: 'published'
+
+    id:null,
+
+    title:'',
+    topic:'',
+    difficulty:'',
+    source:'',
+
+    category:'',
+    excerpt:'',
+    body:'',
+
+    year:'',
+    type:'',
+    description:'',
+
+    status:'published'
+
   };
 
   render();
+
 }
 
 
 async function editItem(id) {
 
-  const d = await api('/api/content');
+  try {
 
-  state.editing = d[state.type].find(x => x.id === id);
+    const d = await api('/api/content');
 
-  render();
+    state.editing =
+      d[state.type].find(
+        x => x.id === id
+      );
+
+    render();
+
+  } catch (e) {
+
+    toast(e.message);
+
+  }
+
 }
 
 
@@ -241,170 +580,271 @@ function formHtml(x) {
 
   let fields = '';
 
+
   if (state.type === 'problems') {
 
     fields = `
+
       <div class="field">
-        <label>Title</label>
+
+        <label>
+          Title
+        </label>
+
         <input
           class="input"
           id="f-title"
           value="${esc(x.title)}"
         >
+
       </div>
+
 
       <div class="formgrid">
 
         <div class="field">
-          <label>Topic</label>
+
+          <label>
+            Topic
+          </label>
+
           <input
             class="input"
             id="f-topic"
             value="${esc(x.topic)}"
           >
+
         </div>
 
+
         <div class="field">
-          <label>Difficulty</label>
+
+          <label>
+            Difficulty
+          </label>
+
           <input
             class="input"
             id="f-difficulty"
             value="${esc(x.difficulty)}"
           >
+
         </div>
 
+
         <div class="field">
-          <label>Source</label>
+
+          <label>
+            Source
+          </label>
+
           <input
             class="input"
             id="f-source"
             value="${esc(x.source)}"
           >
+
         </div>
 
+
         <div class="field">
-          <label>Status</label>
+
+          <label>
+            Status
+          </label>
+
           <input
             class="input"
             id="f-status"
             value="${esc(x.status)}"
           >
+
         </div>
 
       </div>
+
     `;
   }
+
 
   if (state.type === 'articles') {
 
     fields = `
+
       <div class="field">
-        <label>Title</label>
+
+        <label>
+          Title
+        </label>
+
         <input
           class="input"
           id="f-title"
           value="${esc(x.title)}"
         >
+
       </div>
+
 
       <div class="formgrid">
 
         <div class="field">
-          <label>Category</label>
+
+          <label>
+            Category
+          </label>
+
           <input
             class="input"
             id="f-category"
             value="${esc(x.category)}"
           >
+
         </div>
 
+
         <div class="field">
-          <label>Status</label>
+
+          <label>
+            Status
+          </label>
+
           <input
             class="input"
             id="f-status"
             value="${esc(x.status)}"
           >
+
         </div>
 
       </div>
 
+
       <div class="field">
-        <label>Excerpt</label>
+
+        <label>
+          Excerpt
+        </label>
+
         <textarea
           class="textarea"
           id="f-excerpt"
           rows="3"
         >${esc(x.excerpt)}</textarea>
+
       </div>
 
+
       <div class="field">
-        <label>Body</label>
+
+        <label>
+          Body
+        </label>
+
         <textarea
           class="textarea"
           id="f-body"
           rows="7"
         >${esc(x.body)}</textarea>
+
       </div>
+
     `;
   }
+
 
   if (state.type === 'contests') {
 
     fields = `
+
       <div class="field">
-        <label>Title</label>
+
+        <label>
+          Title
+        </label>
+
         <input
           class="input"
           id="f-title"
           value="${esc(x.title)}"
         >
+
       </div>
+
 
       <div class="formgrid">
 
         <div class="field">
-          <label>Year</label>
+
+          <label>
+            Year
+          </label>
+
           <input
             class="input"
             id="f-year"
             value="${esc(x.year)}"
           >
+
         </div>
 
+
         <div class="field">
-          <label>Type</label>
+
+          <label>
+            Type
+          </label>
+
           <input
             class="input"
             id="f-type"
             value="${esc(x.type)}"
           >
+
         </div>
 
+
         <div class="field full">
-          <label>Status</label>
+
+          <label>
+            Status
+          </label>
+
           <input
             class="input"
             id="f-status"
             value="${esc(x.status)}"
           >
+
         </div>
 
       </div>
 
+
       <div class="field">
-        <label>Description</label>
+
+        <label>
+          Description
+        </label>
+
         <textarea
           class="textarea"
           id="f-description"
           rows="5"
         >${esc(x.description)}</textarea>
+
       </div>
+
     `;
   }
 
+
   return `
-    <div class="bigcard" style="margin-top:25px">
+
+    <div
+      class="bigcard"
+      style="margin-top:25px"
+    >
 
       <div class="tag">
         ${x.id ? 'EDIT' : 'CREATE'}
@@ -423,7 +863,10 @@ function formHtml(x) {
 
         <button
           class="btn"
-          onclick="state.editing=null;render()"
+          onclick="
+            state.editing=null;
+            render()
+          "
         >
           Cancel
         </button>
@@ -431,7 +874,9 @@ function formHtml(x) {
       </div>
 
     </div>
+
   `;
+
 }
 
 
@@ -453,8 +898,8 @@ async function saveItem() {
       await api(
         `/api/admin/${state.type}/${x.id}`,
         {
-          method: 'PUT',
-          body: JSON.stringify(data)
+          method:'PUT',
+          body:JSON.stringify(data)
         }
       );
 
@@ -463,10 +908,11 @@ async function saveItem() {
       await api(
         `/api/admin/${state.type}`,
         {
-          method: 'POST',
-          body: JSON.stringify(data)
+          method:'POST',
+          body:JSON.stringify(data)
         }
       );
+
     }
 
     state.editing = null;
@@ -477,21 +923,27 @@ async function saveItem() {
 
   } catch (e) {
 
+    console.error(e);
+
     toast(e.message);
+
   }
+
 }
 
 
 async function removeItem(id) {
 
-  if (!confirm('Delete this item?')) return;
+  if (!confirm('Delete this item?')) {
+    return;
+  }
 
   try {
 
     await api(
       `/api/admin/${state.type}/${id}`,
       {
-        method: 'DELETE'
+        method:'DELETE'
       }
     );
 
@@ -502,8 +954,11 @@ async function removeItem(id) {
   } catch (e) {
 
     toast(e.message);
+
   }
+
 }
+
 </script>
 
 </body>
