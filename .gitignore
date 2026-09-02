@@ -1,0 +1,14 @@
+# Exclude node_modules and large build artifacts
+node_modules/
+**/node_modules/
+
+# Worker build output / local dist (only include what Pages must serve)
+workers/dist/
+dist/
+
+# Editor / local files
+.vscode/
+.env
+*.log
+.DS_Store
+.git/"node_modules/" 
