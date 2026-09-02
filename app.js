@@ -1,5 +1,7 @@
 
-const API_BASE = 'https://able-1-05sf.onrender.com';
+// Use relative API base so frontend talks to Cloudflare Pages/Workers at `/api`.
+// This preserves frontend behavior while routing requests to the new backend.
+const API_BASE = '';
 
 async function api(path, opts = {}) {
   const url = path.startsWith('http') ? path : `${API_BASE}${path}`;

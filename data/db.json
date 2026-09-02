@@ -1,0 +1,90 @@
+{
+  "users": [
+    {
+      "id": "u_1df5bc03268b",
+      "name": "ABLE Admin",
+      "email": "admin@able.local",
+      "password": "ca7dcd1dd9d2636cee268b60edf4ce46:a431381322a3a7ad9e6e830477c59487bc6b476955ba09dbbc8a534a76cb05eb7834536b71ff1ed10b34f120f6a2a12e46b325611a8ca09da19c9a95f032462b",
+      "role": "admin",
+      "createdAt": "2026-09-02T18:05:49.505Z"
+    },
+    {
+      "id": "u_2dcb7fe9bf83",
+      "name": "Ülvi Sadıqlı Elşad oğlu",
+      "email": "ulvisadigli0@gmail.com",
+      "password": "63ff048f49e5c7d0c3f750c975652d83:7545c9851241245ce6a0e92e845e886ea1c67e94b32d0a5b61706707d07224e3ce42e94728f703ab2a4f72a25ee5ca20815fca1c39d671cdf37b997557e12e04",
+      "role": "user",
+      "createdAt": "2026-09-02T18:32:58.232Z"
+    }
+  ],
+  "problems": [
+    {
+      "id": "p1",
+      "title": "Find all functions f : R → R satisfying a functional equation",
+      "topic": "Functional Equations",
+      "difficulty": "Olympiad",
+      "source": "ABLE Sample",
+      "status": "published"
+    },
+    {
+      "id": "p2",
+      "title": "A divisibility problem with hidden valuation structure",
+      "topic": "Number Theory",
+      "difficulty": "Hard",
+      "source": "ABLE Sample",
+      "status": "published"
+    },
+    {
+      "id": "p3",
+      "title": "The circle configuration that collapses under inversion",
+      "topic": "Geometry",
+      "difficulty": "Hard",
+      "source": "ABLE Sample",
+      "status": "published"
+    }
+  ],
+  "articles": [
+    {
+      "id": "a1",
+      "title": "Lambda Substitution",
+      "category": "Functional Equations",
+      "excerpt": "A recurring technique for functional equations on R+ and beyond.",
+      "body": "Lambda substitution is one of the techniques ABLE wants students to recognise and reuse. This article is a starter note for the full handout.",
+      "status": "published"
+    },
+    {
+      "id": "a2",
+      "title": "Limits in Functional Equations",
+      "category": "Methods",
+      "excerpt": "When a limit exists, turn it into information about the function.",
+      "body": "Study continuity-like consequences, monotonicity, boundedness and carefully chosen substitutions.",
+      "status": "published"
+    },
+    {
+      "id": "a3",
+      "title": "How to Read an Olympiad Problem",
+      "category": "Problem Solving",
+      "excerpt": "A compact framework for extracting structure before calculating.",
+      "body": "Identify the objects, the invariants, the quantifiers and the likely transformations before committing to a route.",
+      "status": "published"
+    }
+  ],
+  "contests": [
+    {
+      "id": "c1",
+      "title": "Balkan MO Training",
+      "year": "2026",
+      "type": "Training Set",
+      "description": "A focused collection for Balkan-level preparation.",
+      "status": "published"
+    },
+    {
+      "id": "c2",
+      "title": "IMO Training Archive",
+      "year": "2026",
+      "type": "Archive",
+      "description": "Curated IMO-style problems and solutions.",
+      "status": "published"
+    }
+  ]
+}
