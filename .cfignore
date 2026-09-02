@@ -2,6 +2,10 @@
 node_modules/
 **/node_modules/
 
+# Explicitly exclude the workerd binary if present
+node_modules/**/workerd/
+node_modules/**/workerd/**
+
 # Worker build output / local dist (only include what Pages must serve)
 workers/dist/
 dist/

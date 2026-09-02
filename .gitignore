@@ -6,9 +6,12 @@ node_modules/
 workers/dist/
 dist/
 
+# Static site output
+site/
+
 # Editor / local files
 .vscode/
 .env
 *.log
 .DS_Store
-.git/"node_modules/" 
+
