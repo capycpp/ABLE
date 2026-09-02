@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ABLE — Archive</title>
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/app.js"></script>
+</head>
+
+<body>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  shell(
+    'Archive',
+    'Archive',
+    `
+      <section class="pagehero">
+        <div class="wrap">
+          <div class="eyebrow">04 — Archive</div>
+          <h1>The library<br>behind ABLE.</h1>
+          <p class="lead">
+            Statements, solutions, LaTeX source and PDFs in one place.
+            Each collection can grow independently without turning the homepage
+            into a giant scroll.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <div class="cards">
+
+            <article class="card">
+              <div class="tag">01</div>
+              <h3>Problems Archive</h3>
+              <p>Search by topic, source, year and difficulty.</p>
+            </article>
+
+            <article class="card">
+              <div class="tag">02</div>
+              <h3>Solutions Archive</h3>
+              <p>Readable, structured solutions for serious training.</p>
+            </article>
+
+            <article class="card">
+              <div class="tag">03</div>
+              <h3>LaTeX Archive</h3>
+              <p>Typeset source for selected problems, solutions and handouts.</p>
+            </article>
+
+            <article class="card">
+              <div class="tag">04</div>
+              <h3>PDF Library</h3>
+              <p>Training booklets, handouts and competition material.</p>
+            </article>
+
+            <article class="card">
+              <div class="tag">05</div>
+              <h3>English / Azərbaycan</h3>
+              <p>Language-aware content without duplicating the entire platform.</p>
+            </article>
+
+            <article class="card">
+              <div class="tag">06</div>
+              <h3>Future Collections</h3>
+              <p>A clean space for new ABLE projects as the library grows.</p>
+            </article>
+
+          </div>
+        </div>
+      </section>
+    `
+  );
+
+});
+</script>
+
+</body>
+</html>

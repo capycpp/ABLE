@@ -3,6 +3,9 @@
   "version":"2.0.0",
   "private":true,
   "description":"ABLE Olympiad Mathematics platform with real local accounts and admin panel",
-  "scripts":{"start":"node server.js"},
+  "scripts":{
+    "start":"node server.js",
+    "build:pages":"node scripts/prepare_site.js"
+  },
   "engines":{"node":">=18"}
 }
